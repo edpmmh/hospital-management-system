@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 
 const app = express();
 
-// --- 1. CORS SETTINGS (FIXED) ---
+// --- 1. CORS & MIDDLEWARE ---
 app.use(cors({
     origin: '*', 
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -20,7 +20,15 @@ mongoose.connect(cloudURI)
     .then(() => console.log("☁️ Connected to MongoDB Atlas!"))
     .catch(err => console.error("❌ Database Error:", err));
 
-// --- 3. SCHEMAS (Updated with MRD and Address) ---
+// --- 3. SCHEMAS ---
+
+// User Schema for Staff Login 
+const User = mongoose.model('User', new mongoose.Schema({
+    userId: { type: String, unique: true },
+    password: { type: String, default: '123' },
+    role: String // admin, doctor, pharmacy, receptionist, billing
+}));
+
 const Patient = mongoose.model('Patient', new mongoose.Schema({
     mrd: String, 
     name: String, 
@@ -34,10 +42,12 @@ const Patient = mongoose.model('Patient', new mongoose.Schema({
 const Consultation = mongoose.model('Consultation', new mongoose.Schema({ 
     patientName: String, 
     mrd: String,
+    doctorName: String, 
     fees: Number, 
-    status: { type: String, default: 'Waiting' }, 
+    status: { type: String, default: 'Waiting' }, // Waiting -> Checked -> Dispensed
     diagnosis: String, 
     medicines: String, 
+    pharmacyBill: Number,
     date: { type: Date, default: Date.now } 
 }));
 
@@ -59,9 +69,20 @@ const LabReport = mongoose.model('LabReport', new mongoose.Schema({
 
 // --- 4. ROUTES ---
 
-// Server Check Route
 app.get('/', (req, res) => {
-    res.send("🚀 Bittu Hospital API is LIVE and Updated!");
+    res.send("🚀 Bittu Hospital API is LIVE and Secure!");
+});
+
+// Role-Based Queue Fetching 
+app.get('/get-queue/:role', async (req, res) => {
+    try {
+        let query = {};
+        if (req.params.role === 'doctor') query = { status: 'Waiting' };
+        if (req.params.role === 'pharmacy') query = { status: 'Checked' };
+        
+        const data = await Consultation.find(query).sort({ date: 1 });
+        res.send(data);
+    } catch (err) { res.status(500).send(err); }
 });
 
 // Register New Patient
@@ -73,23 +94,16 @@ app.post('/register-patient', async (req, res) => {
     } catch (err) { res.status(500).send(err); }
 });
 
-// Update Existing Patient (Edit Feature)
-app.put('/update-patient/:id', async (req, res) => {
+// Update Patient / Prescribe / Dispense
+app.put('/update-consultation/:id', async (req, res) => {
     try {
-        await Patient.findByIdAndUpdate(req.params.id, req.body);
-        res.send({ message: "Patient Updated Successfully!" });
+        // Dynamic update for both Doctor and Pharmacy 
+        await Consultation.findByIdAndUpdate(req.params.id, req.body);
+        res.send({ message: "Record Updated!" });
     } catch (err) { res.status(500).send(err); }
 });
 
-// Get All Patients List
-app.get('/get-patients', async (req, res) => {
-    try {
-        const data = await Patient.find().sort({_id: -1}); 
-        res.send(data);
-    } catch (err) { res.status(500).send(err); }
-});
-
-// OPD Billing & Doctor Queue
+// OPD Billing
 app.post('/add-billing', async (req, res) => {
     try {
         const b = new Billing(req.body); 
@@ -97,42 +111,18 @@ app.post('/add-billing', async (req, res) => {
         const c = new Consultation({ 
             patientName: req.body.patientName, 
             mrd: req.body.mrd,
-            fees: req.body.amount 
+            fees: req.body.amount,
+            doctorName: req.body.doctorName 
         });
         await c.save();
-        res.send({ message: "Bill Saved & Added to Doctor Queue!" });
+        res.send({ message: "Bill Saved & Added to Queue!" });
     } catch (err) { res.status(500).send(err); }
 });
 
-// Doctor Queue (Waiting Patients)
-app.get('/doctor-queue', async (req, res) => {
+app.get('/get-patients', async (req, res) => {
     try {
-        const queue = await Consultation.find({ status: 'Waiting' }).sort({ date: 1 }); 
-        res.send(queue);
-    } catch (err) { res.status(500).send(err); }
-});
-
-// Doctor Prescription
-app.put('/prescribe-patient/:id', async (req, res) => {
-    try {
-        await Consultation.findByIdAndUpdate(req.params.id, { ...req.body, status: 'Checked' });
-        res.send({ message: "Prescription Saved!" });
-    } catch (err) { res.status(500).send(err); }
-});
-
-// Completed Visits History
-app.get('/patient-history', async (req, res) => {
-    try {
-        const history = await Consultation.find({ status: 'Checked' }).sort({ date: -1 }); 
-        res.send(history);
-    } catch (err) { res.status(500).send(err); }
-});
-
-// Laboratory Pending Reports
-app.get('/get-lab-pending', async (req, res) => {
-    try {
-        const pending = await LabReport.find({ status: 'Pending' }); 
-        res.send(pending);
+        const data = await Patient.find().sort({_id: -1}); 
+        res.send(data);
     } catch (err) { res.status(500).send(err); }
 });
 
