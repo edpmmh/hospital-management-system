@@ -11,9 +11,12 @@ app.use(bodyParser.json());
 // NOTE: <db_password> ki jagah apna real password likhein bina < > brackets ke.
 const cloudURI = "mongodb+srv://mmh:mmh2026.khwfbh8.mongodb.net/hospital_db?retryWrites=true&w=majority&appName=Cluster0";
 
+// process.env ka matlab hai ki Render ki settings se uthao
+const cloudURI = process.env.MONGO_URI; 
+
 mongoose.connect(cloudURI)
-    .then(() => console.log("☁️ Connected to MongoDB Atlas (Cloud)!"))
-    .catch(err => console.error("❌ Cloud Connection Error:", err));
+    .then(() => console.log("☁️ Connected to MongoDB Atlas!"))
+    .catch(err => console.error(err));
 
 // --- 2. SCHEMAS ---
 const Patient = mongoose.model('Patient', new mongoose.Schema({
