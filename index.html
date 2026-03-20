@@ -3,208 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bittu HMS - Professional Enterprise</title>
+    <title>Bittu Hospital - Full ERP System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .glass-card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
         .sidebar-gradient { background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); }
         body { background: #f8fafc; font-family: 'Inter', sans-serif; }
-        .hidden { display: none !important; }
-        @media print { .no-print { display: none; } #receiptModal { visibility: visible; position: fixed; top: 0; left: 0; width: 100%; } }
+        .status-badge { font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 800; text-transform: uppercase; }
+        
+        @media print {
+            body * { visibility: hidden; }
+            #receiptModal, #receiptModal * { visibility: visible; }
+            #receiptModal { position: absolute; left: 0; top: 0; width: 100%; border: none; }
+            .no-print { display: none; }
+        }
     </style>
 </head>
-<body>
+<body class="text-slate-800">
 
-    <div id="loginPage" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-[200]">
-        <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md text-center border-t-8 border-blue-600">
-            <h1 class="text-4xl font-black text-slate-800 mb-2 italic tracking-tighter">BITTU <span class="text-blue-600">HMS</span></h1>
-            <p class="text-slate-400 text-xs mb-8 font-bold uppercase tracking-widest text-center">Staff Login Panel</p>
-            <form id="loginForm" class="space-y-5 text-left">
-                <input type="text" id="userId" required class="w-full p-4 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="User ID (admin/rec01/doc01)">
-                <input type="password" id="userPass" required class="w-full p-4 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Password">
-                <button type="submit" class="w-full bg-blue-600 text-white font-black py-4 rounded-xl shadow-lg hover:bg-blue-700 transition-all uppercase tracking-widest text-sm">Login</button>
-            </form>
-            <p id="loginError" class="text-red-500 text-xs mt-4 hidden font-bold italic">Invalid ID or Password!</p>
-        </div>
-    </div>
-
-    <div id="mainDashboard" class="hidden flex flex-col lg:flex-row min-h-screen">
+    <div class="flex flex-col lg:flex-row min-h-screen">
         
-        <div class="w-full lg:w-1/5 sidebar-gradient text-white p-6 shadow-2xl no-print">
-            <div class="flex justify-between items-center mb-10">
-                <h1 class="text-xl font-black italic text-yellow-500 uppercase tracking-tighter">Bittu Health</h1>
-                <button onclick="logout()" class="text-[10px] bg-red-600 px-3 py-1 rounded-full font-bold">LOGOUT</button>
+        <div class="w-full lg:w-1/4 sidebar-gradient text-white p-6 no-print shadow-2xl">
+            <h1 class="text-2xl font-black mb-8 flex items-center text-yellow-500 italic">
+                <i class="fas fa-hospital-alt mr-3"></i>BITTU HEALTH
+            </h1>
+            
+            <div class="space-y-6">
+                <div class="bg-slate-800/50 p-5 rounded-xl border border-white/5">
+                    <h2 class="text-xs font-black mb-4 uppercase text-slate-400 tracking-widest">New Registration</h2>
+                    <form id="regForm" class="space-y-3">
+                        <input type="text" id="regName" placeholder="Patient Full Name" required class="w-full p-2.5 bg-slate-700/50 border border-slate-600 rounded-lg outline-none text-sm text-white">
+                        <div class="flex gap-2">
+                            <input type="text" id="regMrd" readonly class="w-1/2 p-2.5 bg-slate-900 border-none rounded-lg text-yellow-400 font-mono text-xs font-bold">
+                            <input type="number" id="regAge" placeholder="Age" required class="w-1/2 p-2.5 bg-slate-700/50 border border-slate-600 rounded-lg text-sm text-white">
+                        </div>
+                        <input type="text" id="regMobile" placeholder="Mobile Number" required class="w-full p-2.5 bg-slate-700/50 border border-slate-600 rounded-lg text-sm text-white">
+                        <select id="regGender" class="w-full p-2.5 bg-slate-700/50 border border-slate-600 rounded-lg text-sm">
+                            <option>Male</option><option>Female</option>
+                        </select>
+                        <button type="submit" class="w-full bg-yellow-500 text-slate-900 font-black py-3 rounded-lg hover:bg-yellow-400 transition-all text-sm shadow-lg">REGISTER & SAVE</button>
+                    </form>
+                </div>
             </div>
-
-            <div class="bg-white/5 p-4 rounded-2xl border border-white/10 mb-8">
-                <p class="text-[9px] text-slate-400 font-bold uppercase mb-1">Active User</p>
-                <h3 id="displayUser" class="font-black text-white uppercase tracking-wide">-</h3>
-                <span id="displayRole" class="text-[9px] bg-yellow-500 text-slate-900 px-2 py-0.5 rounded font-black uppercase">Role</span>
-            </div>
-
-            <nav class="space-y-2 text-sm font-bold opacity-80" id="navMenu">
-                </nav>
         </div>
 
-        <div class="flex-1 p-6 lg:p-10 overflow-y-auto">
+        <div class="flex-1 p-4 lg:p-6 no-print space-y-6 overflow-y-auto">
             
-            <div id="mod-reception" class="role-module hidden space-y-6">
-                <div class="glass-card p-8 border-t-4 border-blue-600">
-                    <h2 class="text-xl font-black text-slate-800 mb-6 flex justify-between">
-                        <span><i class="fas fa-user-plus mr-2 text-blue-600"></i>NEW PATIENT REGISTRATION</span>
-                        <span id="tokenDisplay" class="text-blue-600 bg-blue-50 px-4 rounded-lg text-sm">Next Token: T-000</span>
-                    </h2>
-                    <form id="regForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="col-span-1 md:col-span-2">
-                            <label class="text-xs font-black text-slate-500">PATIENT FULL NAME</label>
-                            <input type="text" id="regName" required class="w-full p-4 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div class="glass-card p-5 h-[350px] flex flex-col bg-white border-t-4 border-blue-500">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="font-black text-slate-600 uppercase text-xs tracking-widest">1. Registration List (Billing)</h2>
+                        <input type="text" id="searchPat" onkeyup="filterPatients()" placeholder="Search..." class="p-2 border rounded-lg text-xs outline-none">
+                    </div>
+                    <div class="overflow-y-auto flex-1">
+                        <table class="w-full text-xs">
+                            <tbody id="patTable" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="billBox" class="glass-card p-5 border-t-4 border-green-500 hidden bg-green-50/30">
+                    <h2 class="font-black text-green-700 mb-4 uppercase text-xs italic tracking-widest">2. Generate OPD Bill</h2>
+                    <form id="billForm" class="space-y-4">
+                        <div class="flex justify-between items-center p-3 bg-white border border-green-200 rounded-lg shadow-sm">
+                            <div><p class="text-[10px] text-green-600 font-bold uppercase">Patient</p><p id="bName" class="font-black text-slate-800">-</p></div>
+                            <div class="text-right"><p class="text-[10px] text-green-600 font-bold uppercase">MRD</p><p id="bMrd" class="font-mono text-slate-800">-</p></div>
                         </div>
-                        <div>
-                            <label class="text-xs font-black text-slate-500">MRD NO (AUTO)</label>
-                            <input type="text" id="regMrd" readonly class="w-full p-4 bg-slate-200 font-mono font-bold rounded-xl text-blue-700">
+                        <select id="bDoc" class="w-full p-3 border rounded-lg text-sm font-bold bg-white" required>
+                            <option value="">-- Assign Doctor --</option>
+                            <option>Dr. Sharma (Physician)</option><option>Dr. Gupta (Surgeon)</option>
+                            <option>Dr. Verma (Pediatrics)</option>
+                        </select>
+                        <div class="flex gap-2">
+                            <input type="number" id="bAmt" value="300" class="w-2/3 p-3 border rounded-lg text-xl font-black text-blue-800">
+                            <button type="submit" class="w-1/3 bg-green-600 text-white font-black rounded-lg hover:bg-green-700 transition uppercase text-xs">Print & Pay</button>
                         </div>
-                        <div>
-                            <label class="text-xs font-black text-slate-500">MOBILE NUMBER</label>
-                            <input type="text" id="regMobile" required class="w-full p-4 bg-slate-50 border rounded-xl">
-                        </div>
-                        <button type="submit" class="col-span-1 md:col-span-2 bg-blue-600 text-white font-black py-4 rounded-xl shadow-lg hover:bg-blue-700 transition-all uppercase tracking-widest">Register Patient</button>
                     </form>
                 </div>
             </div>
 
-            <div id="mod-billing" class="role-module hidden space-y-6">
-                <div class="glass-card p-6 border-t-4 border-green-600">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-black text-slate-800 uppercase tracking-widest italic">Billing Queue</h2>
-                        <button onclick="loadData()" class="text-xs bg-green-50 text-green-700 px-3 py-1 rounded font-bold hover:bg-green-100"><i class="fas fa-sync mr-1"></i>Refresh List</button>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead class="bg-slate-50 border-b">
-                                <tr class="text-[10px] font-black text-slate-500 uppercase">
-                                    <th class="p-4">Token</th>
-                                    <th class="p-4">Patient / MRD</th>
-                                    <th class="p-4">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="billTable" class="divide-y divide-slate-100">
-                                </tbody>
-                        </table>
+            <div class="glass-card p-5 border-t-4 border-purple-600 bg-white">
+                <h2 class="font-black text-purple-700 mb-4 uppercase text-xs tracking-widest flex items-center">
+                    <i class="fas fa-stethoscope mr-2"></i> 3. Doctor Consultation
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div id="docQueue" class="md:col-span-1 space-y-2 max-h-[250px] overflow-y-auto pr-2"></div>
+                    <div id="docWorkspace" class="md:col-span-2 hidden bg-purple-50/50 p-4 rounded-xl border border-purple-100">
+                        <h3 id="docPatName" class="font-black text-purple-900 mb-4 border-b pb-2">-</h3>
+                        <form id="docForm" class="space-y-3">
+                            <input type="hidden" id="docConsId">
+                            <textarea id="diag" placeholder="Diagnosis..." class="w-full p-3 border rounded-lg text-sm h-16" required></textarea>
+                            <textarea id="meds" placeholder="Medicines (e.g. Paracetamol 1-0-1)..." class="w-full p-3 border border-purple-300 rounded-lg text-sm h-20 font-bold text-blue-700" required></textarea>
+                            <button type="submit" class="w-full bg-purple-600 text-white font-black py-3 rounded-lg hover:bg-purple-700 transition text-sm">COMPLETE & SEND TO PHARMACY</button>
+                        </form>
                     </div>
                 </div>
             </div>
 
+            <div class="glass-card p-5 border-t-4 border-orange-500 bg-white">
+                <h2 class="font-black text-orange-600 mb-4 uppercase text-xs tracking-widest flex items-center">
+                    <i class="fas fa-pills mr-2 text-orange-500"></i> 4. Pharmacy & Dispensary
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div id="pharmQueue" class="md:col-span-1 space-y-2 max-h-[250px] overflow-y-auto pr-2"></div>
+                    <div id="pharmWorkspace" class="md:col-span-2 hidden bg-orange-50/50 p-4 rounded-xl border border-orange-100">
+                        <div class="flex justify-between items-start mb-4">
+                            <div><p class="text-xs font-bold text-orange-600">PRESCRIBED MEDICINES FOR:</p><h3 id="pharmPatName" class="font-black text-orange-900 text-lg uppercase">-</h3></div>
+                            <span class="bg-orange-200 text-orange-800 status-badge">Payment Pending</span>
+                        </div>
+                        <div id="pharmMedsDisplay" class="bg-white p-4 rounded-lg border-2 border-orange-200 font-bold text-blue-900 mb-4 whitespace-pre-line"></div>
+                        <form id="pharmForm" class="space-y-3">
+                            <input type="hidden" id="pharmConsId">
+                            <div class="flex gap-2">
+                                <input type="number" id="pharmBillAmt" placeholder="Medicine Amount ₹" required class="w-2/3 p-3 border-2 border-orange-300 rounded-lg text-xl font-black outline-none">
+                                <button type="submit" class="w-1/3 bg-orange-600 text-white font-black rounded-lg hover:bg-orange-700 transition uppercase text-xs shadow-lg">Final Dispense (Close Bill)</button>
+                            </div>
+                            <p class="text-[10px] text-red-500 italic font-bold text-center mt-2">* Once dispensed, this bill will be closed and cannot be re-billed.</p>
+                        </form>
+                    </div>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <div id="receiptOverlay" class="fixed inset-0 bg-slate-900/90 hidden flex items-center justify-center p-4 z-[100] no-print">
+        <div id="receiptModal" class="bg-white w-full max-w-xs p-6 shadow-2xl text-center">
+            <h1 class="text-xl font-black uppercase border-b-2 border-slate-900 pb-2 mb-4 italic text-blue-800">Bittu Hospital</h1>
+            <div class="space-y-2 text-[11px] text-left border-b border-dashed pb-4">
+                <div class="flex justify-between"><span>DATE:</span><span id="rDate" class="font-bold"></span></div>
+                <div class="flex justify-between"><span>MRD NO:</span><span id="rMrd" class="font-black text-blue-700"></span></div>
+                <div class="flex justify-between"><span>PATIENT:</span><span id="rName" class="font-black uppercase"></span></div>
+                <div class="flex justify-between"><span>DOCTOR:</span><span id="rDoc" class="font-bold"></span></div>
+            </div>
+            <div class="py-4 text-2xl font-black">TOTAL: ₹<span id="rAmt"></span></div>
+            <button onclick="window.print()" class="w-full bg-slate-900 text-white py-2 mb-2 font-bold text-xs uppercase tracking-widest">Print Receipt</button>
+            <button onclick="closeReceipt()" class="w-full bg-slate-100 text-slate-500 py-2 font-bold text-xs uppercase tracking-widest">Close Dashboard</button>
+        </div>
     </div>
 
     <script>
         const API = "https://hospital-management-system-ln64.onrender.com";
-        let user = JSON.parse(localStorage.getItem('hmsUser')) || null;
+        let patients = [];
 
-        // LOGIN CHECK ON LOAD
-        window.onload = () => {
-            if(user) {
-                document.getElementById('loginPage').classList.add('hidden');
-                document.getElementById('mainDashboard').classList.remove('hidden');
-                showModules();
-            }
-        };
+        function genMrd() { document.getElementById('regMrd').value = "MR-" + Math.floor(100000 + Math.random() * 900000); }
 
-        // LOGIN FORM
-        document.getElementById('loginForm').onsubmit = (e) => {
-            e.preventDefault();
-            const id = document.getElementById('userId').value.toLowerCase();
-            const pass = document.getElementById('userPass').value;
-
-            if(pass === '123' || (id === 'admin' && pass === 'admin123')) {
-                let role = 'reception';
-                if(id === 'admin') role = 'admin';
-                else if(id.startsWith('bill')) role = 'billing';
-                else if(id.startsWith('doc')) role = 'doctor';
-                else if(id.startsWith('pharma')) role = 'pharmacy';
-
-                user = { id, role };
-                localStorage.setItem('hmsUser', JSON.stringify(user));
-                location.reload();
-            } else {
-                document.getElementById('loginError').classList.remove('hidden');
-            }
-        };
-
-        function showModules() {
-            document.getElementById('displayUser').innerText = user.id;
-            document.getElementById('displayRole').innerText = user.role;
-            
-            // Show modules based on role
-            document.querySelectorAll('.role-module').forEach(m => m.classList.add('hidden'));
-            
-            if(user.role === 'admin') {
-                document.getElementById('mod-reception').classList.remove('hidden');
-                document.getElementById('mod-billing').classList.remove('hidden');
-            } else if(user.role === 'reception') {
-                document.getElementById('mod-reception').classList.remove('hidden');
-            } else if(user.role === 'billing') {
-                document.getElementById('mod-billing').classList.remove('hidden');
-            }
-            
-            genMrd();
-            loadData();
-        }
-
-        function genMrd() {
-            const token = Math.floor(100 + Math.random() * 900);
-            document.getElementById('regMrd').value = "MR-" + Date.now().toString().slice(-6);
-            if(document.getElementById('tokenDisplay')) document.getElementById('tokenDisplay').innerText = `Next Token: T-${token}`;
-        }
-
-        async function loadData() {
+        async function init() {
             try {
                 const res = await fetch(`${API}/get-patients`);
-                const patients = await res.json();
-                
-                // Show in Billing List
-                document.getElementById('billTable').innerHTML = patients.map((p, index) => `
-                    <tr class="hover:bg-slate-50 transition-all">
-                        <td class="p-4 font-black text-blue-600">T-${100 + index}</td>
-                        <td class="p-4">
-                            <p class="font-black text-slate-800 uppercase">${p.name}</p>
-                            <p class="text-[10px] font-mono text-slate-400">${p.mrd}</p>
-                        </td>
-                        <td class="p-4">
-                            <button onclick="alert('Opening Bill for ${p.name}')" class="bg-green-600 text-white px-4 py-2 rounded-lg text-[10px] font-black hover:bg-green-700">GENERATE BILL</button>
-                        </td>
-                    </tr>
-                `).join('');
-            } catch (e) { console.error("API Error"); }
+                patients = await res.json();
+                renderTable(patients);
+                refreshQueues();
+            } catch (e) { console.log("System Offline"); }
         }
 
-        // REGISTRATION WITHOUT REFRESH (AJAX)
+        async function refreshQueues() {
+            // Load Doctor Queue
+            const dRes = await fetch(`${API}/doctor-queue`);
+            const dData = await dRes.json();
+            document.getElementById('docQueue').innerHTML = dData.map(q => `
+                <div onclick="openDoctor('${q._id}', '${q.patientName}')" class="p-3 bg-purple-50 border border-purple-200 rounded-lg hover:border-purple-600 cursor-pointer shadow-sm">
+                    <p class="font-black text-purple-900 text-sm">${q.patientName}</p>
+                    <span class="text-[9px] font-bold text-purple-500">CLICK TO CONSULT →</span>
+                </div>
+            `).join('');
+
+            // Load Pharmacy Queue (Status: Checked)
+            const pRes = await fetch(`${API}/patient-history`); 
+            const pData = await pRes.json();
+            // Sirf wahi dikhao jo abhi tak Dispense nahi huye
+            document.getElementById('pharmQueue').innerHTML = pData.map(q => `
+                <div onclick="openPharmacy('${q._id}', '${q.patientName}', '${q.medicines}')" class="p-3 bg-orange-50 border border-orange-200 rounded-lg hover:border-orange-600 cursor-pointer shadow-sm">
+                    <p class="font-black text-orange-900 text-sm uppercase">${q.patientName}</p>
+                    <span class="text-[9px] font-bold text-orange-500">READY FOR DISPENSARY →</span>
+                </div>
+            `).join('');
+        }
+
+        function renderTable(data) {
+            document.getElementById('patTable').innerHTML = data.map(p => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-3"><p class="font-black text-slate-700 uppercase">${p.name}</p><span class="text-[9px] font-mono text-blue-500">${p.mrd}</span></td>
+                    <td class="p-3 text-right"><button onclick="showBill('${p.name}', '${p.mrd}')" class="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg font-black text-[10px]">BILL NOW</button></td>
+                </tr>
+            `).join('');
+        }
+
+        // REGISTRATION
         document.getElementById('regForm').onsubmit = async (e) => {
             e.preventDefault();
-            const data = {
-                name: document.getElementById('regName').value,
-                mrd: document.getElementById('regMrd').value,
-                mobile: document.getElementById('regMobile').value,
-                token: document.getElementById('tokenDisplay').innerText
-            };
-
-            await fetch(`${API}/register-patient`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
-            });
-
-            alert("Registration Successful! Token Generated.");
-            document.getElementById('regForm').reset();
-            genMrd(); // Generate new MRD & Token
-            loadData(); // Update Billing List instantly
+            const d = { name: document.getElementById('regName').value, mrd: document.getElementById('regMrd').value, age: document.getElementById('regAge').value, mobile: document.getElementById('regMobile').value, gender: document.getElementById('regGender').value };
+            await fetch(`${API}/register-patient`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(d) });
+            alert("Registered!"); document.getElementById('regForm').reset(); genMrd(); init();
         };
 
-        function logout() {
-            localStorage.removeItem('hmsUser');
-            location.reload();
+        // BILLING
+        function showBill(n, m) { document.getElementById('billBox').classList.remove('hidden'); document.getElementById('bName').innerText = n; document.getElementById('bMrd').innerText = m; }
+        document.getElementById('billForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const b = { patientName: document.getElementById('bName').innerText, mrd: document.getElementById('bMrd').innerText, doctor: document.getElementById('bDoc').value, amount: document.getElementById('bAmt').value };
+            await fetch(`${API}/add-billing`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(b) });
+            document.getElementById('rDate').innerText = new Date().toLocaleDateString();
+            document.getElementById('rName').innerText = b.patientName; document.getElementById('rMrd').innerText = b.mrd; document.getElementById('rDoc').innerText = b.doctor; document.getElementById('rAmt').innerText = b.amount;
+            document.getElementById('receiptOverlay').classList.remove('hidden');
+        };
+
+        function closeReceipt() { document.getElementById('receiptOverlay').classList.add('hidden'); document.getElementById('billBox').classList.add('hidden'); refreshQueues(); }
+
+        // DOCTOR
+        function openDoctor(id, name) { document.getElementById('docWorkspace').classList.remove('hidden'); document.getElementById('docPatName').innerText = name; document.getElementById('docConsId').value = id; }
+        document.getElementById('docForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('docConsId').value;
+            const d = { diagnosis: document.getElementById('diag').value, medicines: document.getElementById('meds').value };
+            await fetch(`${API}/prescribe-patient/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(d) });
+            alert("Prescription Saved & Sent to Pharmacy!");
+            document.getElementById('docForm').reset(); document.getElementById('docWorkspace').classList.add('hidden'); refreshQueues();
+        };
+
+        // PHARMACY (NEW LOGIC)
+        function openPharmacy(id, name, meds) {
+            document.getElementById('pharmWorkspace').classList.remove('hidden');
+            document.getElementById('pharmPatName').innerText = name;
+            document.getElementById('pharmMedsDisplay').innerText = meds;
+            document.getElementById('pharmConsId').value = id;
         }
+
+        document.getElementById('pharmForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('pharmConsId').value;
+            const amt = document.getElementById('pharmBillAmt').value;
+            // API call to finalize/delete from queue (We can use a status 'Dispensed')
+            await fetch(`${API}/prescribe-patient/${id}`, { 
+                method:'PUT', headers:{'Content-Type':'application/json'}, 
+                body:JSON.stringify({ status: 'Dispensed', pharmBill: amt }) 
+            });
+            alert("Dawai Dispensed! Bill Closed Successfully.");
+            document.getElementById('pharmForm').reset();
+            document.getElementById('pharmWorkspace').classList.add('hidden');
+            refreshQueues();
+        };
+
+        function filterPatients() {
+            const v = document.getElementById('searchPat').value.toLowerCase();
+            const f = patients.filter(p => p.name.toLowerCase().includes(v));
+            renderTable(f);
+        }
+
+        window.onload = () => { genMrd(); init(); };
     </script>
 </body>
 </html>
