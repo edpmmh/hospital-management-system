@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Health Admin Pro - Bittu Hospital</title>
+    <style>
+        :root { --teal: #009688; --dark: #222d32; --bg: #f4f7f6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; margin: 0; height: 100vh; overflow: hidden; }
+        .sidebar { width: 240px; background: var(--dark); color: #b8c7ce; display: flex; flex-direction: column; }
+        .sidebar-header { background: #00796b; padding: 20px; text-align: center; color: white; font-weight: bold; }
+        .sidebar-menu a { padding: 15px 20px; display: block; color: #b8c7ce; text-decoration: none; cursor: pointer; transition: 0.3s; border-left: 4px solid transparent; }
+        .sidebar-menu a:hover { background: #1a2226; color: white; border-left-color: var(--teal); }
+        .main { flex: 1; overflow-y: auto; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-top: 4px solid var(--teal); margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background: #f8f9fa; font-size: 13px; color: #666; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; }
+        .modal-content { background: white; width: 600px; margin: 40px auto; padding: 25px; border-radius: 10px; }
+        input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 5px; }
+        .btn { padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; width: 100%; transition: 0.3s; }
+        .btn-teal { background: var(--teal); }
+        .btn-action { width: auto; padding: 4px 10px; font-size: 12px; background: var(--teal); }
+    </style>
+</head>
+<body onload="initApp()">
+
+    <div class="sidebar">
+        <div class="sidebar-header">BITTU HOSPITAL</div>
+        <div class="sidebar-menu">
+            <a onclick="location.reload()">📊 Dashboard</a>
+            <a onclick="openModal('regModal')">📝 Registration</a>
+            <a onclick="openModal('billModal')">💰 OPD Billing</a>
+            <a onclick="openModal('labModal')">🔬 Laboratory</a>
+            <a onclick="openPharmacy()">💊 Pharmacy Stock</a>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="card">
+            <h2 style="color:var(--teal)">👨‍⚕️ Waiting List (Today's Queue)</h2>
+            <table>
+                <thead><tr><th>Token</th><th>Patient Name</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody id="qTable"></tbody>
+            </table>
+        </div>
+
+        <div class="card" style="border-top-color: #2196F3;">
+            <h2 style="color:#2196F3">🔬 Laboratory (Pending Tests)</h2>
+            <table>
+                <thead><tr><th>Patient</th><th>Test Name</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody id="labPendingTable"></tbody>
+            </table>
+        </div>
+
+        <div class="card" style="border-top-color:#f39c12">
+            <h2>📜 Completed Reports & History</h2>
+            <table>
+                <thead><tr><th>Date</th><th>Patient</th><th>Test/Diagnosis</th><th>Action</th></tr></thead>
+                <tbody id="hTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="labModal" class="modal"><div class="modal-content">
+        <h3>🔬 Order Lab Test</h3>
+        <input type="text" id="lPatient" placeholder="Patient Name">
+        <select id="lTest">
+            <option>Blood Test (CBC)</option>
+            <option>Sugar Test</option>
+            <option>X-Ray Chest</option>
+            <option>Urine Test</option>
+        </select>
+        <button class="btn btn-teal" onclick="saveLabTest()">Add Test Order</button><br><br>
+        <button onclick="closeModal('labModal')">Close</button>
+    </div></div>
+
+    <div id="labResultModal" class="modal"><div class="modal-content">
+        <h3>📝 Enter Test Result</h3>
+        <input type="hidden" id="labId">
+        <p id="labPatName"></p>
+        <textarea id="labResult" placeholder="Enter findings (e.g. Hemoglobin: 14.5 g/dl)" style="height: 150px;"></textarea>
+        <button class="btn btn-teal" onclick="submitLabResult()">Save & Print Report</button><br><br>
+        <button onclick="closeModal('labResultModal')">Close</button>
+    </div></div>
+
+    <div id="regModal" class="modal"><div class="modal-content"><h3>Registration</h3><input type="text" id="rName" placeholder="Name"><button class="btn btn-teal" onclick="saveReg()">Save</button><br><br><button onclick="closeModal('regModal')">Cancel</button></div></div>
+    <div id="billModal" class="modal"><div class="modal-content"><h3>OPD Billing</h3><input type="text" id="bName" placeholder="Patient Name"><input type="number" id="bAmt" placeholder="Fees"><button class="btn btn-teal" onclick="saveBill()">Post</button><br><br><button onclick="closeModal('billModal')">Cancel</button></div></div>
+    <div id="doctorModal" class="modal"><div class="modal-content"><h3>Prescription</h3><input type="hidden" id="docId"><input type="text" id="diagnosis" placeholder="Bimari"><textarea id="medicines" placeholder="Meds"></textarea><button class="btn btn-teal" onclick="submitCheckup()">Save</button><br><br><button onclick="closeModal('doctorModal')">Cancel</button></div></div>
+
+    <script>
+        const API = "http://192.168.50.240:5000"
+        function openModal(id) { document.getElementById(id).style.display = 'block'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function initApp() { fetchDoctorQueue(); fetchLabPending(); fetchHistory(); }
+
+        // Lab Functions
+        async function saveLabTest() {
+            const data = { patientName: document.getElementById('lPatient').value, testName: document.getElementById('lTest').value };
+            await fetch(`${API}/add-lab-test`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+            alert("Test Ordered!"); closeModal('labModal'); fetchLabPending();
+        }
+
+        async function fetchLabPending() {
+            const res = await fetch(`${API}/get-lab-pending`);
+            const data = await res.json();
+            const table = document.getElementById('labPendingTable'); table.innerHTML = '';
+            data.forEach(t => {
+                table.innerHTML += `<tr><td>${t.patientName}</td><td>${t.testName}</td><td>Pending</td><td><button class="btn-action" onclick="openLabResult('${t._id}', '${t.patientName}')">Enter Result</button></td></tr>`;
+            });
+        }
+
+        function openLabResult(id, name) {
+            document.getElementById('labId').value = id;
+            document.getElementById('labPatName').innerText = "Patient: " + name;
+            openModal('labResultModal');
+        }
+
+        async function submitLabResult() {
+            const res = await fetch(`${API}/update-lab-result/${document.getElementById('labId').value}`, {
+                method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ result: document.getElementById('labResult').value })
+            });
+            alert("Report Generated!"); closeModal('labResultModal'); initApp();
+            printLabReport(document.getElementById('labPatName').innerText, document.getElementById('labResult').value);
+        }
+
+        function printLabReport(name, result) {
+            const w = window.open('', '_blank');
+            w.document.write(`<html><body style="font-family:sans-serif;padding:50px;border:5px solid #2196F3;">
+                <h1 style="text-align:center;color:#2196F3;">BITTU LABORATORY REPORT</h1><hr>
+                <p><b>${name}</b> <span style="float:right">Date: ${new Date().toLocaleDateString()}</span></p><br>
+                <h3>TEST RESULTS:</h3>
+                <p style="white-space:pre-line;min-height:300px;">${result}</p>
+                <p style="text-align:right">Pathologist Signature</p>
+                <script>window.print();window.close();<\/script></body></html>`);
+            w.document.close();
+        }
+
+        // ... Purane Fetch Functions (Queue, History, etc.) ...
+        async function fetchDoctorQueue() { 
+            const res = await fetch(`${API}/doctor-queue`); const data = await res.json(); 
+            const table = document.getElementById('qTable'); table.innerHTML = '';
+            data.forEach((p, i) => { table.innerHTML += `<tr><td>${i+1}</td><td>${p.patientName}</td><td>Waiting</td><td><button class="btn-action" onclick="openModal('doctorModal'); document.getElementById('docId').value='${p._id}';">Check</button></td></tr>`; });
+        }
+        async function fetchHistory() { 
+            const res = await fetch(`${API}/patient-history`); const data = await res.json(); 
+            const table = document.getElementById('hTable'); table.innerHTML = '';
+            data.forEach(h => { table.innerHTML += `<tr><td>${new Date(h.date).toLocaleDateString()}</td><td>${h.patientName}</td><td>${h.diagnosis}</td><td><button class="btn-action">View</button></td></tr>`; });
+        }
+        // ... Registration aur Billing Logic (Pichle code se copy karein) ...
+    </script>
+</body>
+</html>
