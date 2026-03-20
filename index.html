@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bittu Hospital - Professional Admin</title>
+    <title>Bittu Hospital - Full Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .glass-card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .glass-card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
         .sidebar-gradient { background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%); }
-        body { background: #f8fafc; font-family: 'Inter', sans-serif; }
+        body { background: #f1f5f9; font-family: 'Inter', sans-serif; }
         
-        /* Print Styles */
         @media print {
             body * { visibility: hidden; }
             #receiptModal, #receiptModal * { visibility: visible; }
-            #receiptModal { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; }
+            #receiptModal { position: absolute; left: 0; top: 0; width: 100%; border: none; }
             .no-print { display: none; }
         }
     </style>
@@ -24,123 +23,138 @@
 
     <div class="flex flex-col lg:flex-row min-h-screen">
         
-        <div class="w-full lg:w-1/3 sidebar-gradient text-white p-6 shadow-2xl no-print">
-            <h1 class="text-2xl font-black mb-6 flex items-center">
-                <i class="fas fa-hospital-symbol mr-3 text-yellow-400"></i> BITTU HOSPITAL
+        <div class="w-full lg:w-1/4 sidebar-gradient text-white p-6 no-print shadow-2xl">
+            <h1 class="text-2xl font-black mb-8 flex items-center">
+                <i class="fas fa-hospital-symbol mr-3 text-yellow-400"></i> BITTU HMS
             </h1>
             
-            <div class="bg-blue-900/50 p-6 rounded-xl border border-blue-400/30">
-                <h2 class="text-lg font-bold mb-4"><i class="fas fa-user-plus mr-2"></i> New Registration</h2>
-                <form id="regForm" class="space-y-4">
-                    <div>
-                        <label class="text-xs font-bold opacity-80">PATIENT NAME</label>
-                        <input type="text" id="regName" required class="w-full p-3 bg-white/10 border border-white/20 rounded-lg outline-none focus:border-yellow-400 text-white">
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-xs font-bold opacity-80">MRD (AUTO)</label>
-                            <input type="text" id="regMrd" readonly class="w-full p-3 bg-blue-800 border-none rounded-lg text-yellow-400 font-mono font-bold">
+            <div class="space-y-6">
+                <div class="bg-blue-900/40 p-5 rounded-xl border border-white/10">
+                    <h2 class="font-bold mb-4 text-yellow-400"><i class="fas fa-plus-circle mr-2"></i> New Patient</h2>
+                    <form id="regForm" class="space-y-3">
+                        <input type="text" id="regName" placeholder="Patient Name" required class="w-full p-2.5 bg-white/10 border border-white/20 rounded-lg outline-none text-sm">
+                        <div class="flex gap-2">
+                            <input type="text" id="regMrd" readonly class="w-1/2 p-2.5 bg-blue-800 border-none rounded-lg text-yellow-300 font-mono text-xs font-bold">
+                            <input type="number" id="regAge" placeholder="Age" required class="w-1/2 p-2.5 bg-white/10 border border-white/20 rounded-lg text-sm">
                         </div>
-                        <div>
-                            <label class="text-xs font-bold opacity-80">MOBILE</label>
-                            <input type="text" id="regMobile" required class="w-full p-3 bg-white/10 border border-white/20 rounded-lg">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-xs font-bold opacity-80">AGE</label>
-                            <input type="number" id="regAge" required class="w-full p-3 bg-white/10 border border-white/20 rounded-lg">
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold opacity-80">GENDER</label>
-                            <select id="regGender" class="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white">
-                                <option class="text-black">Male</option><option class="text-black">Female</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-400 text-blue-900 font-black p-4 rounded-xl shadow-lg transition-all">
-                        SAVE & REGISTER
-                    </button>
-                </form>
+                        <input type="text" id="regMobile" placeholder="Mobile No" required class="w-full p-2.5 bg-white/10 border border-white/20 rounded-lg text-sm">
+                        <select id="regGender" class="w-full p-2.5 bg-white/10 border border-white/20 rounded-lg text-white text-sm">
+                            <option class="text-black">Male</option><option class="text-black">Female</option>
+                        </select>
+                        <button type="submit" class="w-full bg-yellow-500 text-blue-900 font-black py-3 rounded-lg hover:bg-yellow-400 transition-all text-sm uppercase">Register Patient</button>
+                    </form>
+                </div>
+
+                <div class="bg-blue-800/50 p-4 rounded-xl text-xs">
+                    <p class="opacity-70 font-bold mb-2 uppercase">Quick Links</p>
+                    <button onclick="location.reload()" class="w-full text-left py-2 hover:text-yellow-400"><i class="fas fa-sync mr-2"></i> Refresh Dashboard</button>
+                </div>
             </div>
         </div>
 
-        <div class="flex-1 p-4 lg:p-8 no-print overflow-y-auto">
-            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                
-                <div class="glass-card p-6 border-t-4 border-blue-600 h-fit">
-                    <h2 class="text-xl font-black text-gray-800 mb-4">PATIENT LIST</h2>
-                    <input type="text" id="searchInput" onkeyup="searchPatient()" placeholder="Search Name/MRD..." class="w-full p-3 border rounded-lg mb-4 outline-none">
-                    <div class="overflow-y-auto max-h-[500px]">
-                        <table class="w-full text-left text-sm">
-                            <tbody id="patientTable" class="divide-y divide-gray-100"></tbody>
+        <div class="flex-1 p-4 lg:p-6 no-print space-y-6 overflow-y-auto">
+            
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div class="glass-card p-5 h-[400px] flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="font-black text-gray-700 uppercase tracking-wider text-sm">1. Billing Queue</h2>
+                        <input type="text" id="searchInp" onkeyup="searchPat()" placeholder="Search Name..." class="p-2 border rounded-lg text-xs outline-none focus:ring-1">
+                    </div>
+                    <div class="overflow-y-auto flex-1">
+                        <table class="w-full text-xs">
+                            <thead class="bg-gray-50 sticky top-0">
+                                <tr class="text-gray-400 border-b">
+                                    <th class="p-3 text-left">MRD/NAME</th>
+                                    <th class="p-3 text-right">ACTION</th>
+                                </tr>
+                            </thead>
+                            <tbody id="patTable" class="divide-y"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <div id="billingBox" class="glass-card p-6 border-t-4 border-green-600 hidden">
-                    <h2 class="text-xl font-black text-gray-800 mb-6 flex items-center">
-                        <i class="fas fa-file-invoice-dollar mr-2 text-green-600"></i> OPD BILLING
-                    </h2>
-                    <form id="billingForm" class="space-y-4">
-                        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
-                            <p class="text-xs text-green-700 font-bold uppercase">Patient</p>
-                            <h3 id="billPatientName" class="text-xl font-black text-green-900">-</h3>
-                            <p id="billPatientMrd" class="text-sm font-mono text-green-600">-</p>
+                <div id="billBox" class="glass-card p-5 border-t-4 border-green-500 hidden">
+                    <h2 class="font-black text-green-700 mb-4 uppercase text-sm italic">2. Generate Bill</h2>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="p-3 bg-green-50 rounded-lg">
+                            <p class="text-[10px] text-green-600 font-bold">PATIENT</p>
+                            <p id="bName" class="font-black text-gray-800">-</p>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 mb-1">SELECT DOCTOR</label>
-                            <select id="billDoctor" class="w-full p-3 border rounded-lg bg-white outline-none" required>
-                                <option value="">-- Choose Doctor --</option>
-                                <option>Dr. Sharma (Physician)</option><option>Dr. Gupta (Surgeon)</option>
-                                <option>Dr. Verma (Pediatrics)</option><option>Dr. Khan (Orthopedic)</option>
-                                <option>Dr. Singh (Gynaecology)</option>
-                            </select>
+                        <div class="p-3 bg-green-50 rounded-lg">
+                            <p class="text-[10px] text-green-600 font-bold">MRD NO</p>
+                            <p id="bMrd" class="font-mono text-gray-800">-</p>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 mb-1">FEES (₹)</label>
-                            <input type="number" id="billAmount" value="300" class="w-full p-4 border rounded-lg text-2xl font-black text-blue-800 outline-none">
+                    </div>
+                    <form id="billForm" class="space-y-4">
+                        <select id="bDoc" class="w-full p-3 border rounded-lg text-sm outline-none font-bold" required>
+                            <option value="">-- Choose Doctor --</option>
+                            <option>Dr. Sharma (Physician)</option><option>Dr. Gupta (Surgeon)</option>
+                            <option>Dr. Verma (Pediatrics)</option><option>Dr. Khan (Orthopedic)</option>
+                        </select>
+                        <div class="flex gap-2">
+                            <input type="number" id="bAmt" value="300" class="w-2/3 p-3 border rounded-lg text-xl font-black text-blue-700 outline-none">
+                            <button type="submit" class="w-1/3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition">PAY & SEND</button>
                         </div>
-                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-black p-5 rounded-xl shadow-xl transition-all">
-                            GENERATE & PRINT BILL
-                        </button>
                     </form>
+                </div>
+            </div>
+
+            <div class="glass-card p-5 border-t-4 border-purple-600">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="font-black text-purple-700 flex items-center uppercase tracking-widest text-sm">
+                        <i class="fas fa-stethoscope mr-2"></i> 3. Doctor Consultation Module
+                    </h2>
+                    <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-[10px] font-bold" id="queueCount">0 Waiting</span>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-1 border-r pr-4 h-[300px] overflow-y-auto">
+                        <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">Waiting Patients</p>
+                        <div id="docQueue" class="space-y-2"></div>
+                    </div>
+
+                    <div id="prescriptionArea" class="lg:col-span-2 hidden">
+                        <div class="bg-purple-50 p-4 rounded-xl border border-purple-100 mb-4 flex justify-between items-center">
+                            <div>
+                                <p class="text-xs text-purple-600 font-bold uppercase">Now Checking:</p>
+                                <h3 id="pCheckName" class="text-lg font-black text-purple-900">-</h3>
+                            </div>
+                            <button onclick="hidePrescription()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
+                        </div>
+                        <form id="prescForm" class="space-y-4">
+                            <input type="hidden" id="prescId">
+                            <textarea id="diagnosis" placeholder="Diagnosis (Bimari ka naam)" class="w-full p-3 border rounded-lg outline-none text-sm h-20 focus:ring-2 focus:ring-purple-200" required></textarea>
+                            <textarea id="medicines" placeholder="Medicines (Dawaiyan)" class="w-full p-3 border rounded-lg outline-none text-sm h-20 focus:ring-2 focus:ring-purple-200" required></textarea>
+                            <button type="submit" class="bg-purple-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-purple-700 transition shadow-lg w-full">SAVE & COMPLETE VISIT</button>
+                        </form>
+                    </div>
+
+                    <div id="emptyPresc" class="lg:col-span-2 flex flex-col items-center justify-center text-center opacity-30">
+                        <i class="fas fa-user-md text-6xl mb-2"></i>
+                        <p class="text-sm font-bold">Select a patient from the queue<br>to start consultation.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="receiptOverlay" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center p-4 z-[100]">
-        <div id="receiptModal" class="bg-white w-full max-w-sm p-8 rounded-none shadow-2xl relative">
+        <div id="receiptModal" class="bg-white w-full max-w-sm p-8 shadow-2xl relative">
             <div class="text-center border-b-2 border-black pb-4 mb-4">
-                <h1 class="text-xl font-black uppercase">Bittu Hospital & Research Centre</h1>
-                <p class="text-xs">Pune, Maharashtra | Ph: +91 9876543210</p>
-                <div class="mt-2 text-xs font-bold bg-black text-white py-1">OPD CASH RECEIPT</div>
+                <h1 class="text-xl font-black uppercase">Bittu Hospital</h1>
+                <p class="text-[10px]">Quality Healthcare for Everyone</p>
+                <div class="mt-2 text-[10px] font-bold bg-black text-white py-0.5">OPD RECEIPT</div>
             </div>
-            
-            <div class="space-y-2 text-sm">
-                <div class="flex justify-between"><span>Date:</span> <span id="rDate"></span></div>
-                <div class="flex justify-between font-bold"><span>MRD No:</span> <span id="rMrd"></span></div>
+            <div class="space-y-1 text-xs">
+                <div class="flex justify-between"><span>MRD:</span> <span id="rMrd" class="font-bold"></span></div>
                 <div class="flex justify-between"><span>Patient:</span> <span id="rName" class="font-bold"></span></div>
-                <div class="flex justify-between"><span>Doctor:</span> <span id="rDoctor"></span></div>
-                <hr class="border-dashed border-gray-400">
-                <div class="flex justify-between text-lg font-black py-2">
-                    <span>TOTAL AMOUNT:</span> <span>₹<span id="rAmount"></span></span>
-                </div>
-                <hr class="border-dashed border-gray-400">
+                <div class="flex justify-between"><span>Doctor:</span> <span id="rDoc"></span></div>
+                <div class="border-t border-dashed my-2"></div>
+                <div class="flex justify-between text-base font-black"><span>TOTAL:</span> <span>₹<span id="rAmt"></span></span></div>
             </div>
-
-            <div class="mt-10 flex justify-between items-end">
-                <div class="text-[10px] italic text-gray-500 text-left">System Generated Bill<br>No Signature Required</div>
-                <div class="text-center">
-                    <div class="w-20 h-0.5 bg-black mb-1"></div>
-                    <p class="text-[10px] font-bold">Authorized Sign</p>
-                </div>
-            </div>
-
-            <div class="mt-8 flex gap-2 no-print">
-                <button onclick="window.print()" class="flex-1 bg-blue-600 text-white py-2 rounded font-bold">PRINT NOW</button>
-                <button onclick="closeReceipt()" class="flex-1 bg-gray-200 py-2 rounded font-bold">CLOSE</button>
+            <div class="mt-6 flex gap-2 no-print">
+                <button onclick="window.print()" class="flex-1 bg-blue-600 text-white py-2 rounded font-bold text-xs">PRINT</button>
+                <button onclick="closeReceipt()" class="flex-1 bg-gray-200 py-2 rounded font-bold text-xs">CLOSE</button>
             </div>
         </div>
     </div>
@@ -149,69 +163,107 @@
         const API = "https://hospital-management-system-ln64.onrender.com";
         let patients = [];
 
-        function generateMRD() { document.getElementById('regMrd').value = "MR-" + Math.floor(100000 + Math.random() * 900000); }
+        function genMrd() { document.getElementById('regMrd').value = "MR-" + Math.floor(100000 + Math.random() * 900000); }
 
-        async function loadData() {
+        async function loadAll() {
             try {
                 const res = await fetch(`${API}/get-patients`);
                 patients = await res.json();
-                renderTable(patients);
-            } catch (e) { console.error("API Connection Error"); }
+                renderPatTable(patients);
+                loadQueue();
+            } catch (e) { console.log("Offline"); }
         }
 
-        function renderTable(data) {
-            document.getElementById('patientTable').innerHTML = data.map(p => `
+        async function loadQueue() {
+            const res = await fetch(`${API}/doctor-queue`);
+            const queue = await res.json();
+            document.getElementById('queueCount').innerText = `${queue.length} Waiting`;
+            document.getElementById('docQueue').innerHTML = queue.map(q => `
+                <div onclick="startPrescription('${q._id}', '${q.patientName}')" class="p-3 bg-white border border-purple-100 rounded-lg hover:border-purple-500 cursor-pointer transition-all shadow-sm">
+                    <p class="font-black text-gray-800 text-sm">${q.patientName}</p>
+                    <p class="text-[10px] text-purple-600 font-bold uppercase tracking-tighter">Click to Prescribe →</p>
+                </div>
+            `).join('');
+        }
+
+        function renderPatTable(data) {
+            document.getElementById('patTable').innerHTML = data.map(p => `
                 <tr class="hover:bg-blue-50">
-                    <td class="p-4">
-                        <span class="block font-mono text-blue-600 font-bold text-[10px]">${p.mrd || 'N/A'}</span>
-                        <span class="block font-black text-gray-800 uppercase">${p.name}</span>
+                    <td class="p-3">
+                        <span class="block font-black text-gray-700 uppercase">${p.name}</span>
+                        <span class="text-[9px] text-blue-500 font-mono">${p.mrd || '-'}</span>
                     </td>
-                    <td class="p-4 text-right">
-                        <button onclick="selectForBill('${p.name}', '${p.mrd}')" class="bg-green-100 text-green-700 px-3 py-2 rounded font-bold text-xs">BILL NOW</button>
+                    <td class="p-3 text-right">
+                        <button onclick="setBill('${p.name}', '${p.mrd}')" class="bg-green-100 text-green-700 px-3 py-1.5 rounded font-black text-[10px]">BILL NOW</button>
                     </td>
                 </tr>
             `).join('');
         }
 
+        // Registration
         document.getElementById('regForm').onsubmit = async (e) => {
             e.preventDefault();
-            const data = { name: document.getElementById('regName').value, mrd: document.getElementById('regMrd').value, 
-                           mobile: document.getElementById('regMobile').value, age: document.getElementById('regAge').value, 
-                           gender: document.getElementById('regGender').value };
-            await fetch(`${API}/register-patient`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
-            alert("Registered!"); document.getElementById('regForm').reset(); generateMRD(); loadData();
+            const d = { name: document.getElementById('regName').value, mrd: document.getElementById('regMrd').value, 
+                       age: document.getElementById('regAge').value, mobile: document.getElementById('regMobile').value, gender: document.getElementById('regGender').value };
+            await fetch(`${API}/register-patient`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(d) });
+            alert("Patient Registered!"); document.getElementById('regForm').reset(); genMrd(); loadAll();
         };
 
-        function selectForBill(name, mrd) {
-            document.getElementById('billingBox').classList.remove('hidden');
-            document.getElementById('billPatientName').innerText = name;
-            document.getElementById('billPatientMrd').innerText = mrd;
+        // Billing
+        function setBill(n, m) {
+            document.getElementById('billBox').classList.remove('hidden');
+            document.getElementById('bName').innerText = n; document.getElementById('bMrd').innerText = m;
         }
 
-        document.getElementById('billingForm').onsubmit = async (e) => {
+        document.getElementById('billForm').onsubmit = async (e) => {
             e.preventDefault();
-            const b = { patientName: document.getElementById('billPatientName').innerText, mrd: document.getElementById('billPatientMrd').innerText,
-                        doctor: document.getElementById('billDoctor').value, amount: document.getElementById('billAmount').value };
+            const b = { patientName: document.getElementById('bName').innerText, mrd: document.getElementById('bMrd').innerText, 
+                        doctor: document.getElementById('bDoc').value, amount: document.getElementById('bAmt').value };
+            await fetch(`${API}/add-billing`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(b) });
             
-            await fetch(`${API}/add-billing`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(b) });
-
             // Show Receipt
-            document.getElementById('rDate').innerText = new Date().toLocaleString();
-            document.getElementById('rName').innerText = b.patientName;
-            document.getElementById('rMrd').innerText = b.mrd;
-            document.getElementById('rDoctor').innerText = b.doctor;
-            document.getElementById('rAmount').innerText = b.amount;
+            document.getElementById('rName').innerText = b.patientName; document.getElementById('rMrd').innerText = b.mrd;
+            document.getElementById('rDoc').innerText = b.doctor; document.getElementById('rAmt').innerText = b.amount;
             document.getElementById('receiptOverlay').classList.remove('hidden');
         };
 
-        function closeReceipt() { document.getElementById('receiptOverlay').classList.add('hidden'); document.getElementById('billingBox').classList.add('hidden'); }
-        function searchPatient() {
-            const val = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = patients.filter(p => p.name.toLowerCase().includes(val) || (p.mrd && p.mrd.includes(val)));
-            renderTable(filtered);
+        function closeReceipt() { 
+            document.getElementById('receiptOverlay').classList.add('hidden'); 
+            document.getElementById('billBox').classList.add('hidden'); 
+            loadQueue(); // Refresh Doctor Queue
         }
 
-        window.onload = () => { generateMRD(); loadData(); };
+        // Doctor Logic
+        function startPrescription(id, name) {
+            document.getElementById('prescriptionArea').classList.remove('hidden');
+            document.getElementById('emptyPresc').classList.add('hidden');
+            document.getElementById('prescId').value = id;
+            document.getElementById('pCheckName').innerText = name;
+        }
+
+        function hidePrescription() {
+            document.getElementById('prescriptionArea').classList.add('hidden');
+            document.getElementById('emptyPresc').classList.remove('hidden');
+        }
+
+        document.getElementById('prescForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('prescId').value;
+            const d = { diagnosis: document.getElementById('diagnosis').value, medicines: document.getElementById('medicines').value };
+            await fetch(`${API}/prescribe-patient/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(d) });
+            alert("Prescription Saved!");
+            document.getElementById('prescForm').reset();
+            hidePrescription();
+            loadQueue();
+        };
+
+        function searchPat() {
+            const v = document.getElementById('searchInp').value.toLowerCase();
+            const f = patients.filter(p => p.name.toLowerCase().includes(v));
+            renderPatTable(f);
+        }
+
+        window.onload = () => { genMrd(); loadAll(); };
     </script>
 </body>
 </html>
