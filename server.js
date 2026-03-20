@@ -5,10 +5,12 @@ const bodyParser = require('body-parser');
 
 const app = express();
 
-// --- 1. SETTINGS & MIDDLEWARE ---
-// Origin '*' ka matlab hai ki mobile aur doosre PC se connection block nahi hoga
-app.use(cors());
-app.use(bodyParser.json());
+// Ye Netlify aur baaki sabhi links ko allow karega
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type']
+}));
 
 // --- 2. CLOUD DATABASE CONNECTION ---
 const cloudURI = process.env.MONGO_URI; 
