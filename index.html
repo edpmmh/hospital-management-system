@@ -3,198 +3,252 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Health Admin Pro - Registration</title>
+    <title>Health Admin Pro - Bittu Hospital</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .card { border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .tab-active { border-bottom: 4px solid #1d4ed8; color: #1d4ed8; font-weight: bold; }
+        body { background-color: #f3f4f6; }
     </style>
 </head>
 <body>
 
-    <nav class="bg-blue-700 p-4 text-white shadow-lg mb-6">
+    <nav class="bg-blue-800 p-4 text-white shadow-xl">
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-2xl font-bold">🏥 Bittu Hospital Management</h1>
-            <span id="server-status" class="bg-red-500 px-3 py-1 rounded-full text-xs">Connecting...</span>
+            <div id="status" class="bg-red-500 px-4 py-1 rounded-full text-xs animate-pulse">Connecting Server...</div>
         </div>
     </nav>
 
-    <div class="container mx-auto px-4">
-        
-        <div class="bg-white p-6 card mb-6 flex flex-wrap gap-4 items-center justify-between">
-            <div class="flex-1 min-w-[300px]">
-                <input type="text" id="searchInput" onkeyup="searchPatient()" placeholder="Search by Name or MRD Number..." class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-            </div>
-            <button onclick="openModal()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition">
-                + Add New Patient
-            </button>
-        </div>
-
-        <div class="bg-white card overflow-hidden">
-            <table class="w-full text-left border-collapse">
-                <thead class="bg-gray-100 border-b">
-                    <tr>
-                        <th class="p-4">MRD No.</th>
-                        <th class="p-4">Patient Name</th>
-                        <th class="p-4">Mobile</th>
-                        <th class="p-4">Age/Sex</th>
-                        <th class="p-4">Address</th>
-                        <th class="p-4">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="patientTable">
-                    </tbody>
-            </table>
+    <div class="bg-white shadow-md mb-6">
+        <div class="container mx-auto flex space-x-8 px-4">
+            <button onclick="showSection('reg-section')" id="tab-reg" class="py-4 px-2 tab-active">Patient Registration</button>
+            <button onclick="showSection('bill-section')" id="tab-bill" class="py-4 px-2 text-gray-500">OPD Billing</button>
         </div>
     </div>
 
-    <div id="patientModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4">
+    <div class="container mx-auto px-4 pb-10">
+        
+        <div id="reg-section" class="section">
+            <div class="bg-white p-6 card mb-6 flex flex-wrap gap-4 items-center justify-between">
+                <input type="text" id="searchReg" onkeyup="searchPatient()" placeholder="Search Name or MRD Number..." class="flex-1 p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400">
+                <button onclick="openRegModal()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold shadow-lg">
+                    + New Registration
+                </button>
+            </div>
+
+            <div class="bg-white card overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-100 border-b">
+                        <tr>
+                            <th class="p-4">MRD No</th>
+                            <th class="p-4">Name</th>
+                            <th class="p-4">Mobile</th>
+                            <th class="p-4">Age/Sex</th>
+                            <th class="p-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patientTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="bill-section" class="section hidden">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 card md:col-span-1">
+                    <h2 class="text-xl font-bold mb-4 text-blue-800 border-b pb-2">Create New Bill</h2>
+                    <form id="billingForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-bold">Patient Name (from Search)</label>
+                            <input type="text" id="billName" readonly class="w-full p-2 bg-gray-100 border rounded cursor-not-allowed">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold">MRD Number</label>
+                            <input type="text" id="billMrd" readonly class="w-full p-2 bg-gray-100 border rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold">Consultation Fees (₹)</label>
+                            <input type="number" id="billAmount" value="200" required class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-700 text-white p-3 rounded-lg font-bold hover:bg-blue-900 shadow-md">
+                            GENERATE BILL & SEND TO DOCTOR
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="md:col-span-2 space-y-4">
+                    <div class="bg-white p-4 card">
+                        <input type="text" id="searchBill" onkeyup="searchForBill()" placeholder="Dhoondein: Kiska bill banana hai?" class="w-full p-3 border rounded-lg italic">
+                    </div>
+                    <div class="bg-white card h-[400px] overflow-y-auto">
+                        <div id="billSearchList" class="divide-y"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="regModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-lg rounded-xl shadow-2xl overflow-hidden">
-            <div class="bg-blue-700 p-4 text-white flex justify-between">
-                <h2 id="modalTitle" class="text-xl font-bold">New Registration</h2>
-                <button onclick="closeModal()" class="text-2xl">&times;</button>
+            <div class="bg-blue-800 p-4 text-white flex justify-between">
+                <h2 id="modalTitle" class="text-xl font-bold">Patient Registration</h2>
+                <button onclick="closeRegModal()" class="text-2xl">&times;</button>
             </div>
             <form id="regForm" class="p-6 grid grid-cols-2 gap-4">
-                <input type="hidden" id="patientId">
+                <input type="hidden" id="editId">
                 <div class="col-span-2">
-                    <label class="block text-sm font-bold mb-1">Full Name</label>
-                    <input type="text" id="name" required class="w-full p-2 border rounded">
+                    <label class="font-bold text-sm">Full Name</label>
+                    <input type="text" id="regName" required class="w-full p-2 border rounded">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold mb-1">MRD Number (Auto)</label>
-                    <input type="text" id="mrd" readonly class="w-full p-2 border rounded bg-gray-100">
+                    <label class="font-bold text-sm">MRD (Auto)</label>
+                    <input type="text" id="regMrd" readonly class="w-full p-2 bg-gray-100 border rounded font-mono text-blue-700">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold mb-1">Mobile</label>
-                    <input type="text" id="mobile" required class="w-full p-2 border rounded">
+                    <label class="font-bold text-sm">Mobile</label>
+                    <input type="text" id="regMobile" required class="w-full p-2 border rounded">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold mb-1">Age</label>
-                    <input type="number" id="age" required class="w-full p-2 border rounded">
+                    <label class="font-bold text-sm">Age</label>
+                    <input type="number" id="regAge" required class="w-full p-2 border rounded">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold mb-1">Gender</label>
-                    <select id="gender" class="w-full p-2 border rounded">
-                        <option>Male</option>
-                        <option>Female</option>
-                        <option>Other</option>
+                    <label class="font-bold text-sm">Gender</label>
+                    <select id="regGender" class="w-full p-2 border rounded">
+                        <option>Male</option><option>Female</option><option>Other</option>
                     </select>
                 </div>
                 <div class="col-span-2">
-                    <label class="block text-sm font-bold mb-1">Address</label>
-                    <textarea id="address" class="w-full p-2 border rounded" rows="2"></textarea>
+                    <label class="font-bold text-sm">Address</label>
+                    <textarea id="regAddress" class="w-full p-2 border rounded" rows="2"></textarea>
                 </div>
-                <button type="submit" class="col-span-2 bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-800">
-                    SAVE PATIENT DETAILS
-                </button>
+                <button type="submit" class="col-span-2 bg-blue-700 text-white p-3 rounded-lg font-bold hover:bg-blue-900 transition">SAVE RECORD</button>
             </form>
         </div>
     </div>
 
     <script>
-        // --- CONFIGURATION ---
         const API = "https://hospital-management-system-ln64.onrender.com";
-        let allPatients = [];
+        let patients = [];
 
-        // --- LOAD DATA ---
-        async function fetchPatients() {
-            try {
-                const res = await fetch(`${API}/get-patients`);
-                allPatients = await res.json();
-                renderTable(allPatients);
-                document.getElementById('server-status').innerText = "Online";
-                document.getElementById('server-status').classList.replace('bg-red-500', 'bg-green-500');
-            } catch (err) {
-                console.error("Server down");
-            }
+        // UI Tabs Logic
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById('tab-reg').className = id === 'reg-section' ? 'py-4 px-2 tab-active' : 'py-4 px-2 text-gray-500';
+            document.getElementById('tab-bill').className = id === 'bill-section' ? 'py-4 px-2 tab-active' : 'py-4 px-2 text-gray-500';
         }
 
-        function renderTable(data) {
-            const table = document.getElementById('patientTable');
-            table.innerHTML = data.map(p => `
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="p-4 font-mono font-bold text-blue-700">${p.mrd || 'N/A'}</td>
-                    <td class="p-4 font-bold">${p.name}</td>
+        // Fetch Data
+        async function loadData() {
+            try {
+                const res = await fetch(`${API}/get-patients`);
+                patients = await res.json();
+                renderRegTable(patients);
+                document.getElementById('status').innerText = "System Online";
+                document.getElementById('status').className = "bg-green-600 px-4 py-1 rounded-full text-xs";
+            } catch (e) { console.error("API Error"); }
+        }
+
+        // Registration Features
+        function renderRegTable(data) {
+            document.getElementById('patientTable').innerHTML = data.map(p => `
+                <tr class="border-b hover:bg-blue-50">
+                    <td class="p-4 font-bold text-blue-800 font-mono">${p.mrd || '-'}</td>
+                    <td class="p-4 font-semibold">${p.name}</td>
                     <td class="p-4">${p.mobile}</td>
-                    <td class="p-4">${p.age} / ${p.gender || 'M'}</td>
-                    <td class="p-4 text-sm">${p.address || '-'}</td>
+                    <td class="p-4">${p.age} / ${p.gender}</td>
                     <td class="p-4">
-                        <button onclick="editPatient('${p._id}')" class="text-blue-600 hover:underline mr-3">Edit</button>
-                        <button onclick="goToBilling('${p.name}', '${p.mrd}')" class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">OPD Bill</button>
+                        <button onclick="editPatient('${p._id}')" class="text-blue-600 font-bold mr-4">Edit</button>
+                        <button onclick="selectForBill('${p.name}', '${p.mrd}')" class="bg-blue-700 text-white px-3 py-1 rounded text-xs">Bill Now</button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        // --- SEARCH LOGIC ---
-        function searchPatient() {
-            const val = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allPatients.filter(p => 
-                p.name.toLowerCase().includes(val) || 
-                (p.mrd && p.mrd.toLowerCase().includes(val))
-            );
-            renderTable(filtered);
-        }
-
-        // --- MODAL & FORM LOGIC ---
-        function openModal() {
+        function openRegModal() {
             document.getElementById('regForm').reset();
-            document.getElementById('patientId').value = "";
-            document.getElementById('modalTitle').innerText = "New Registration";
-            // Generate temporary MRD (e.g., MR2026-001)
-            document.getElementById('mrd').value = "MR-" + Date.now().toString().slice(-6);
-            document.getElementById('patientModal').classList.remove('hidden');
+            document.getElementById('editId').value = "";
+            document.getElementById('regMrd').value = "MRD-" + Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('regModal').classList.remove('hidden');
         }
 
-        function closeModal() {
-            document.getElementById('patientModal').classList.add('hidden');
-        }
-
-        function editPatient(id) {
-            const p = allPatients.find(x => x._id === id);
-            document.getElementById('patientId').value = p._id;
-            document.getElementById('name').value = p.name;
-            document.getElementById('mrd').value = p.mrd || "";
-            document.getElementById('mobile').value = p.mobile;
-            document.getElementById('age').value = p.age;
-            document.getElementById('gender').value = p.gender || "Male";
-            document.getElementById('address').value = p.address;
-            document.getElementById('modalTitle').innerText = "Edit Patient Details";
-            document.getElementById('patientModal').classList.remove('hidden');
-        }
+        function closeRegModal() { document.getElementById('regModal').classList.add('hidden'); }
 
         document.getElementById('regForm').onsubmit = async (e) => {
             e.preventDefault();
-            const id = document.getElementById('patientId').value;
+            const id = document.getElementById('editId').value;
             const data = {
-                name: document.getElementById('name').value,
-                mrd: document.getElementById('mrd').value,
-                mobile: document.getElementById('mobile').value,
-                age: document.getElementById('age').value,
-                gender: document.getElementById('gender').value,
-                address: document.getElementById('address').value
+                name: document.getElementById('regName').value,
+                mrd: document.getElementById('regMrd').value,
+                mobile: document.getElementById('regMobile').value,
+                age: document.getElementById('regAge').value,
+                gender: document.getElementById('regGender').value,
+                address: document.getElementById('regAddress').value
             };
-
-            const url = id ? `${API}/update-patient/${id}` : `${API}/register-patient`;
             const method = id ? 'PUT' : 'POST';
-
+            const url = id ? `${API}/update-patient/${id}` : `${API}/register-patient`;
+            
             await fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json' },
+                method, headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(data)
             });
-
-            closeModal();
-            fetchPatients();
-            alert("Success!");
+            closeRegModal(); loadData();
         };
 
-        function goToBilling(name, mrd) {
-            alert(`Opening Billing for ${name} (${mrd})...`);
-            // Yahan se aap Billing module par bhej sakte hain
+        function editPatient(id) {
+            const p = patients.find(x => x._id === id);
+            document.getElementById('editId').value = p._id;
+            document.getElementById('regName').value = p.name;
+            document.getElementById('regMrd').value = p.mrd;
+            document.getElementById('regMobile').value = p.mobile;
+            document.getElementById('regAge').value = p.age;
+            document.getElementById('regGender').value = p.gender;
+            document.getElementById('regAddress').value = p.address;
+            document.getElementById('regModal').classList.remove('hidden');
         }
 
-        window.onload = fetchPatients;
+        // Billing Logic
+        function selectForBill(name, mrd) {
+            showSection('bill-section');
+            document.getElementById('billName').value = name;
+            document.getElementById('billMrd').value = mrd;
+        }
+
+        function searchForBill() {
+            const val = document.getElementById('searchBill').value.toLowerCase();
+            const filtered = patients.filter(p => p.name.toLowerCase().includes(val) || p.mrd.includes(val));
+            document.getElementById('billSearchList').innerHTML = filtered.map(p => `
+                <div onclick="selectForBill('${p.name}', '${p.mrd}')" class="p-4 hover:bg-blue-50 cursor-pointer flex justify-between">
+                    <span><b>${p.name}</b> (${p.mrd})</span>
+                    <span class="text-blue-600">Select →</span>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('billingForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = {
+                patientName: document.getElementById('billName').value,
+                mrd: document.getElementById('billMrd').value,
+                amount: document.getElementById('billAmount').value
+            };
+            await fetch(`${API}/add-billing`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            alert("Bill Generated! Patient sent to Doctor Queue.");
+            document.getElementById('billingForm').reset();
+            showSection('reg-section');
+        };
+
+        function searchPatient() {
+            const val = document.getElementById('searchReg').value.toLowerCase();
+            const filtered = patients.filter(p => p.name.toLowerCase().includes(val) || p.mrd.includes(val));
+            renderRegTable(filtered);
+        }
+
+        window.onload = loadData;
     </script>
 </body>
 </html>
