@@ -7,7 +7,7 @@ const app = express();
 
 // --- 1. SETTINGS & MIDDLEWARE ---
 // Origin '*' ka matlab hai ki mobile aur doosre PC se connection block nahi hoga
-app.use(cors({ origin: '*' })); 
+app.use(cors());
 app.use(bodyParser.json());
 
 // --- 2. CLOUD DATABASE CONNECTION ---
