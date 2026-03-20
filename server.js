@@ -8,15 +8,12 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // --- 1. CLOUD DATABASE CONNECTION ---
-// NOTE: <db_password> ki jagah apna real password likhein bina < > brackets ke.
-const cloudURI = "mongodb+srv://mmh:mmh2026.khwfbh8.mongodb.net/hospital_db?retryWrites=true&w=majority&appName=Cluster0";
-
-// process.env ka matlab hai ki Render ki settings se uthao
+// Render ki settings (Environment Variables) se MONGO_URI uthayega
 const cloudURI = process.env.MONGO_URI; 
 
 mongoose.connect(cloudURI)
     .then(() => console.log("☁️ Connected to MongoDB Atlas!"))
-    .catch(err => console.error(err));
+    .catch(err => console.error("❌ Connection Error:", err));
 
 // --- 2. SCHEMAS ---
 const Patient = mongoose.model('Patient', new mongoose.Schema({
@@ -113,5 +110,6 @@ app.get('/get-stock', async (req, res) => {
     const stock = await Medicine.find().sort({ name: 1 }); res.send(stock);
 });
 
+// Render dynamic port binding
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server Running on port ${PORT}`));
