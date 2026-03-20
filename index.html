@@ -8,8 +8,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .glass-card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
-        .sidebar { background: #0f172a; color: white; }
+        .sidebar { background: #0f172a; color: white; transition: all 0.3s; }
         .hidden { display: none !important; }
+        .token-btn { width: 100%; text-align: left; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-weight: bold; font-size: 13px; transition: 0.2s; border: 1px solid #e2e8f0; }
+        .token-btn:hover { background: #f8fafc; border-color: #3b82f6; }
         @media print { .no-print { display: none; } #receiptModal { visibility: visible; position: fixed; top: 0; left: 0; width: 100%; } }
     </style>
 </head>
@@ -17,68 +19,89 @@
 
     <div id="loginPage" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-[500]">
         <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md border-t-8 border-blue-600">
-            <h1 class="text-3xl font-black text-center mb-2 italic">BITTU <span class="text-blue-600">HMS</span></h1>
-            <p class="text-slate-400 text-xs text-center font-bold uppercase tracking-widest mb-8">Staff Authentication</p>
+            <h1 class="text-3xl font-black text-center mb-2 italic tracking-tighter">BITTU <span class="text-blue-600">HMS</span></h1>
+            <p class="text-slate-400 text-xs text-center font-bold uppercase tracking-widest mb-8">System Access</p>
             <form id="loginForm" class="space-y-4">
                 <input type="text" id="uId" placeholder="User ID (admin/doc01/rec01)" class="w-full p-4 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
                 <input type="password" id="uPass" placeholder="Password" class="w-full p-4 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
-                <button type="submit" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black shadow-lg hover:bg-blue-700 transition-all uppercase tracking-widest text-sm">Access Dashboard</button>
+                <button type="submit" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black shadow-lg hover:bg-blue-700 transition-all uppercase tracking-widest text-sm">Sign In</button>
             </form>
-            <p id="loginError" class="text-red-500 text-xs mt-4 hidden text-center font-bold italic">Invalid ID or Password!</p>
+            <p id="loginError" class="text-red-500 text-xs mt-4 hidden text-center font-bold">Invalid Access Credentials!</p>
         </div>
     </div>
 
     <div id="dashboard" class="hidden min-h-screen flex flex-col lg:flex-row">
         
         <div class="w-full lg:w-72 sidebar p-6 shadow-2xl no-print">
-            <h1 class="text-2xl font-black text-yellow-500 mb-10 italic tracking-tighter"><i class="fas fa-hospital-alt mr-2"></i>BITTU HEALTH</h1>
+            <h1 class="text-2xl font-black text-yellow-500 mb-10 italic tracking-tighter text-center">BITTU HEALTH</h1>
             
             <div class="mb-10 p-4 bg-slate-800/50 rounded-2xl border border-white/10">
-                <p class="text-[9px] text-slate-400 uppercase font-bold mb-1 tracking-widest">Logged In As</p>
-                <p id="userLabel" class="font-black text-white uppercase tracking-tight">-</p>
+                <p class="text-[9px] text-slate-400 uppercase font-bold mb-1 tracking-widest">Active Operator</p>
+                <p id="userLabel" class="font-black text-white uppercase tracking-tight text-lg">-</p>
                 <span id="roleBadge" class="text-[9px] bg-blue-600 px-2 py-0.5 rounded font-black uppercase">Role</span>
             </div>
 
-            <nav class="space-y-2 text-sm font-bold opacity-80" id="navMenu">
-                <p class="text-[10px] uppercase text-slate-500 mb-4">Core Modules</p>
+            <nav class="space-y-2" id="navMenu">
+                <p class="text-[10px] uppercase text-slate-500 font-black mb-4 px-2">Core Navigation</p>
                 </nav>
 
-            <button onclick="logout()" class="mt-20 w-full bg-red-600/20 text-red-500 border border-red-500/50 py-3 rounded-xl text-xs font-black hover:bg-red-600 hover:text-white transition-all">LOGOUT SYSTEM</button>
+            <button onclick="logout()" class="mt-20 w-full bg-red-600/10 text-red-500 border border-red-500/50 py-3 rounded-xl text-xs font-black hover:bg-red-600 hover:text-white transition-all">LOGOUT</button>
         </div>
 
         <div class="flex-1 p-4 lg:p-8 overflow-y-auto">
             
-            <div id="mod-reception" class="role-module hidden glass-card p-8 border-t-4 border-blue-500">
-                <h2 class="text-xl font-black mb-6 text-slate-700 uppercase tracking-widest"><i class="fas fa-user-plus mr-2 text-blue-600"></i>New Registration</h2>
-                <form id="regForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <input type="text" id="pName" placeholder="Patient Full Name" class="col-span-2 p-4 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
-                    <input type="text" id="pMrd" readonly class="p-4 bg-slate-200 font-mono text-blue-700 font-black rounded-xl">
-                    <input type="text" id="pMobile" placeholder="Mobile Number" class="p-4 bg-slate-50 border rounded-xl" required>
-                    <button type="submit" class="col-span-2 bg-blue-600 text-white py-4 rounded-xl font-black shadow-lg hover:bg-blue-700 transition-all uppercase tracking-widest">Register Patient</button>
-                </form>
-            </div>
-
-            <div id="mod-billing" class="role-module hidden mt-8 glass-card p-6 border-t-4 border-green-500">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-black text-slate-700 uppercase italic">Billing & Token Queue</h2>
-                    <button onclick="refreshData()" class="text-xs bg-green-50 text-green-700 px-3 py-1 rounded-full font-bold hover:bg-green-100"><i class="fas fa-sync mr-1"></i>Refresh</button>
+            <div class="grid grid-cols-12 gap-6">
+                
+                <div class="col-span-12 lg:col-span-3 no-print">
+                    <div class="glass-card p-5">
+                        <h3 class="font-black text-slate-700 text-sm uppercase mb-4 border-b pb-2"><i class="fas fa-ticket-alt mr-2"></i>Token Manager</h3>
+                        <div class="flex flex-col">
+                            <button onclick="showSection('mod-reception')" class="token-btn text-blue-600"><i class="fas fa-plus mr-2"></i> New OPD Token</button>
+                            <button onclick="showSection('mod-billing')" class="token-btn text-green-600"><i class="fas fa-tasks mr-2"></i> Manage OPD Tokens</button>
+                            <button onclick="refreshData()" class="token-btn text-purple-600"><i class="fas fa-phone-alt mr-2"></i> Called OPD Tokens</button>
+                            <button onclick="refreshData()" class="token-btn text-yellow-600"><i class="fas fa-hourglass-half mr-2"></i> Waiting Tokens</button>
+                            <button onclick="refreshData()" class="token-btn text-slate-600"><i class="fas fa-check-double mr-2"></i> Completed Tokens</button>
+                            <button onclick="alert('Scanning...')" class="token-btn text-red-600"><i class="fas fa-barcode mr-2"></i> Scan Bills</button>
+                        </div>
+                    </div>
                 </div>
-                <div id="billTable" class="space-y-3">
-                    </div>
-            </div>
 
-            <div id="mod-doctor" class="role-module hidden glass-card p-6 border-t-4 border-purple-600">
-                <h2 class="text-xl font-black mb-6 text-purple-700 uppercase"><i class="fas fa-stethoscope mr-2"></i>Doctor's Waiting Room</h2>
-                <div id="docList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="col-span-12 lg:col-span-9">
+                    
+                    <div id="mod-reception" class="role-module hidden glass-card p-8 border-t-4 border-blue-500">
+                        <h2 class="text-xl font-black mb-6 text-slate-700 uppercase tracking-widest">New Patient Registration</h2>
+                        <form id="regForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <input type="text" id="pName" placeholder="Patient Full Name" class="col-span-2 p-4 bg-slate-50 border rounded-xl outline-none focus:border-blue-500" required>
+                            <input type="text" id="pMrd" readonly class="p-4 bg-slate-100 font-mono text-blue-700 font-black rounded-xl border">
+                            <input type="text" id="pMobile" placeholder="Mobile Number" class="p-4 bg-slate-50 border rounded-xl outline-none focus:border-blue-500" required>
+                            <button type="submit" class="col-span-2 bg-blue-600 text-white py-4 rounded-xl font-black shadow-lg hover:bg-blue-700 transition-all uppercase tracking-widest text-sm">Generate Token</button>
+                        </form>
                     </div>
-            </div>
 
-            <div id="mod-pharmacy" class="role-module hidden glass-card p-6 border-t-4 border-orange-500">
-                <h2 class="text-xl font-black mb-6 text-orange-600 uppercase"><i class="fas fa-pills mr-2"></i>Pharmacy Dispatch</h2>
-                <div id="pharmList" class="space-y-3">
+                    <div id="mod-billing" class="role-module hidden glass-card p-6 border-t-4 border-green-500">
+                        <h2 class="text-xl font-black text-slate-700 uppercase mb-6 italic">Billing Queue</h2>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm">
+                                <thead class="bg-slate-50 font-black text-slate-500 uppercase text-[10px]">
+                                    <tr><th class="p-4">Patient/MRD</th><th class="p-4">Action</th></tr>
+                                </thead>
+                                <tbody id="billTable" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
                     </div>
-            </div>
 
+                    <div id="mod-doctor" class="role-module hidden glass-card p-6 border-t-4 border-purple-600">
+                        <h2 class="text-xl font-black mb-6 text-purple-700 uppercase">Consultation Queue</h2>
+                        <div id="docList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                    </div>
+
+                    <div id="mod-pharmacy" class="role-module hidden glass-card p-6 border-t-4 border-orange-500">
+                        <h2 class="text-xl font-black mb-6 text-orange-600 uppercase">Pharmacy Dispatch</h2>
+                        <div id="pharmList" class="space-y-3"></div>
+                    </div>
+
+                </div>
+            </div>
         </div>
     </div>
 
@@ -113,53 +136,53 @@
             document.getElementById('dashboard').classList.remove('hidden');
             document.getElementById('userLabel').innerText = user.id;
             document.getElementById('roleBadge').innerText = user.role;
-
-            document.querySelectorAll('.role-module').forEach(m => m.classList.add('hidden'));
             
+            // Show module based on role
+            showSection(`mod-${user.role}`);
             if(user.role === 'admin') {
                 document.querySelectorAll('.role-module').forEach(m => m.classList.remove('hidden'));
-            } else {
-                document.getElementById(`mod-${user.role}`).classList.remove('hidden');
             }
-            
-            if(user.role === 'reception' || user.role === 'admin') genMrd();
+
+            genMrd();
             refreshData();
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('.role-module').forEach(m => m.classList.add('hidden'));
+            const target = document.getElementById(id);
+            if(target) target.classList.remove('hidden');
         }
 
         async function refreshData() {
             try {
-                // Fetch All Patients for Billing/Reception
                 const res = await fetch(`${API}/get-patients`);
                 const patients = await res.json();
                 
-                // Fetch specific queues for Doctor/Pharmacy 
-                const qRes = await fetch(`${API}/get-queue/${user.role}`);
-                const queue = await qRes.json();
+                // Update Billing Table
+                document.getElementById('billTable').innerHTML = patients.slice(0, 10).map(p => `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4">
+                            <span class="block font-black text-slate-800 uppercase">${p.name}</span>
+                            <span class="text-[10px] font-mono text-blue-600">${p.mrd}</span>
+                        </td>
+                        <td class="p-4"><button class="bg-green-600 text-white px-3 py-1 rounded text-[10px] font-black">GENERATE BILL</button></td>
+                    </tr>
+                `).join('');
                 
-                // Logic to render tables based on role goes here
-                console.log("Data Refreshed");
-            } catch (e) { console.log("Offline"); }
+            } catch (e) { console.log("API Error"); }
         }
 
         document.getElementById('regForm').onsubmit = async (e) => {
             e.preventDefault();
-            const d = { 
-                name: document.getElementById('pName').value, 
-                mrd: document.getElementById('pMrd').value, 
-                mobile: document.getElementById('pMobile').value 
-            };
-            await fetch(`${API}/register-patient`, { 
-                method:'POST', 
-                headers:{'Content-Type':'application/json'}, 
-                body:JSON.stringify(d) 
-            });
-            alert("Registration Successful!");
+            const d = { name: document.getElementById('pName').value, mrd: document.getElementById('pMrd').value, mobile: document.getElementById('pMobile').value };
+            await fetch(`${API}/register-patient`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(d) });
+            alert("Token Generated Successfully!");
             document.getElementById('regForm').reset();
             genMrd();
-            refreshData(); // Updates billing list instantly
+            refreshData();
         };
 
-        function genMrd() { document.getElementById('pMrd').value = "MR-" + Date.now().toString().slice(-6); }
+        function genMrd() { if(document.getElementById('pMrd')) document.getElementById('pMrd').value = "MR-" + Date.now().toString().slice(-6); }
         function logout() { localStorage.removeItem('clinicUser'); location.reload(); }
     </script>
 </body>
